@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <link
+      rel="stylesheet"
+      href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+      integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm"
+      crossorigin="anonymous"
+    />
+
+    <title>Start</title>
+  </head>
+  <body>
+    <div class="container mt-5">
+      <button
+        id="start_button"
+        type="button"
+        class="btn btn-success btn-lg btn-block mt-3"
+      >
+        Start
+      </button>
+      <button
+        id="stop_button"
+        type="button"
+        class="btn btn-danger btn-lg btn-block mt-3"
+      >
+        Stop
+      </button>
+      <button
+        id="connection_test_button"
+        type="button"
+        class="btn btn-success btn-lg btn-block mt-3"
+      >
+        Connection test
+      </button>
+
+      <ul id="result" class="list-group mt-5"></ul>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.0.3/socket.io.js"></script>
+    <script src="https://code.jquery.com/jquery-1.11.1.js"></script>
+    <script>
+      $(function() {
+        console.log("page up");
+        //var socket = io("https://record-system-server.herokuapp.com");
+        var socket = io("http://127.0.0.1:3000");
+
+        $("#start_button").on("click", () => {
+          console.log("start clicked");
+          socket.emit("action", { action: "start", exercise_id: 1 });
+        });
+        $("#stop_button").on("click", () => {
+          console.log("stop clicked");
+          socket.emit("action", { action: "stop", exercise_id: 1 });
+        });
+        $("#connection_test_button").on("click", () => {
+          console.log("connection_test_button clicked");
+          socket.emit("system_status", {
+            action: "testing sensors connection"
+          });
+        });
+        socket.on("get-results", result => {
+          $("#result").append(
+            "<li class='list-group-item'>" + result + "</li>"
+          );
+        });
+        socket.on("welcome", result => {
+          console.log(result);
+        });
+        socket.on("stop-swim", result => {
+          console.log(result);
+          $("#result").append(
+            "<li class='list-group-item'>" + "stop time: " + result + "</li>"
+          );
+        });
+        socket.on("WallSensor", result => {
+          console.log(result);
+          $("#result").append(
+            "<li class='list-group-item'>" +
+              "WallSensor: " +
+              result.route +
+              " =>>>" +
+              result.touchTime +
+              "</li>"
+          );
+        });
+        socket.on("jumpTime", result => {
+          console.log(result);
+          $("#result").append(
+            "<li class='list-group-item'>" +
+              "jumpTime: " +
+              result.route +
+              " =>>>" +
+              result.jumpTime +
+              "</li>"
+          );
+        });
+        socket.on("nodeMCUConnected", status => {
+          console.log(status);
+        });
+      });
+    </script>
+  </body>
+</html>
